@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class Masyarakat extends Authenticatable
+{
+    use Notifiable;
+
+    protected $table = 'masyarakat'; 
+    protected $primaryKey = 'Id_Masyarakat'; 
+    public $timestamps = false;
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    protected $fillable = [
+        'Nama_Masyarakat',
+        'Username_Msy', 
+        'NIK_Masyarakat',
+        'Alamat_Masyarakat',
+        'Email_Masyarakat',
+        'Password_Msy',
+    ];
+
+    protected $hidden = [
+        'Password_Msy',
+    ];
+
+    public function getAuthPassword()
+    {
+        return $this->Password_Msy;
+    }
+}
