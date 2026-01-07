@@ -10,73 +10,64 @@ use Illuminate\Support\Facades\DB;
 
 class ThreadController extends Controller
 {
-    /**
-     * Tampilan Daftar Thread (Forum)
-     */
+    // Halaman utama thread
     public function index()
     {
-        // Mengambil data thread beserta relasi masyarakat
+        // Mengambil data thread dengan penulisnya (masyarakat)
         $threads = Thread::with('masyarakat')
-            ->orderBy('Tanggal', 'desc') 
+            ->orderBy('Tanggal', 'asc')
             ->get();
 
         return view('masyarakat.thread.index', compact('threads'));
     }
 
-    /**
-     * Tampilan Form Buat Thread
-     */
+    // Halaman form buat thread
     public function create()
     {
         return view('masyarakat.thread.create');
     }
 
-    /**
-     * Proses Simpan ke Tabel Thread
-     */
+    // Buat thread
     public function store(Request $request)
     {
-        // 1. Validasi Input sesuai atribut 'name' di blade
+        // Validasi, 'isi' tidak boleh kosong, gambar boleh
         $request->validate([
-            'isi' => 'required|min:5',
+            'isi' => 'required|min:5', // Minimal 5 char
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        // 2. Ambil User secara fleksibel (guard masyarakat atau default)
-        $user = Auth::guard('masyarakat')->user() ?? Auth::user();
+        // Ambil data masyarakat yang sedang login
+        $user = Auth::guard('web')->user();
 
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'Sesi berakhir, silakan login kembali.');
-        }
-
-        // 3. Gunakan DB Transaction & Try-Catch untuk mendeteksi kegagalan simpan
-        DB::beginTransaction();
+        DB::beginTransaction(); // Simpan sementara
         try {
             $nama_gambar = null;
+
+            // Cek apakah ada gambar?
             if ($request->hasFile('gambar')) {
                 $file = $request->file('gambar');
                 $nama_gambar = time() . "_" . $file->getClientOriginalName();
+                // Simpan ke folder khusus thread
                 $file->move(public_path('gambar_thread'), $nama_gambar);
             }
 
-            // 4. Proses Insert
+            // Simpan ke database
             Thread::create([
-                'Id_Masyarakat' => $user->Id_Masyarakat, 
-                'Isi_Thread'    => $request->isi,        
-                'Gambar_Thread' => $nama_gambar,     
-                'Tanggal'       => now()                  
+                'Id_Masyarakat' => $user->Id_Masyarakat,
+                'Isi_Thread' => $request->isi,
+                'Gambar_Thread' => $nama_gambar, 
+                'Tanggal' => now()
             ]);
 
-            DB::commit();
-            
-            // 5. Redirect ke Forum Diskusi
-            return redirect()->route('masyarakat.thread.index')
-                             ->with('status', 'Diskusi baru berhasil dibagikan!');
+            DB::commit(); // Simpan permanen
 
+            return redirect()->route('masyarakat.thread.index')
+                ->with('status', 'Thread berhasil dibuat');
+
+        // Jika terjadi error
         } catch (\Exception $e) {
-            DB::rollBack();
-            // Jika gagal, kembali ke form dengan pesan error database
-            return back()->withInput()->with('error', 'Gagal memposting: ' . $e->getMessage());
+            DB::rollBack(); 
+            return back()->withInput()->with('error', 'Gagal posting: ' . $e->getMessage());
         }
     }
 }
