@@ -8,11 +8,9 @@ use Illuminate\Notifications\Notifiable;
 class Instansi extends Authenticatable
 {
     use Notifiable;
-
     protected $table = 'instansi';
-    protected $primaryKey = 'Id_Instansi';
-
-    // Sesuai kolom di tabel instansi
+    protected $primaryKey = 'Id_Instansi';  
+    public $timestamps = false;
     protected $fillable = [
         'Nama_Instansi',
         'Password_Instansi',
@@ -21,11 +19,8 @@ class Instansi extends Authenticatable
         'No_Telepon_Ins'
     ];
 
-    public $timestamps = false;
-
-    // Memberitahu Laravel kolom password yang benar
     public function getAuthPassword()
     {
-        return $this->Password_Ins;
+        return $this->Password_Instansi;
     }
 }

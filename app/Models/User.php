@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-// Hapus atau beri komentar pada baris Sanctum di bawah ini
-// use Laravel\Sanctum\HasApiTokens; 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable; // Hanya gunakan Notifiable
+    // HasApiTokens untuk token mobile
+    use HasApiTokens, HasFactory, Notifiable;
 
+    // Arahkan model User default ini ke tabel masyarakat
     protected $table = 'masyarakat';
     protected $primaryKey = 'Id_Masyarakat';
     public $timestamps = false;
@@ -24,10 +26,12 @@ class User extends Authenticatable
         'Password_Msy',
     ];
 
+    // Sembunyikan data sensitif saat return JSON (API)
     protected $hidden = [
         'Password_Msy',
+        'remember_token',
     ];
-    
+
     public function getEmailAttribute()
     {
         return $this->Email_Masyarakat;

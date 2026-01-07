@@ -1,78 +1,99 @@
 <x-app-layout>
     <div class="py-10 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            <div class="mb-8 p-8 bg-gradient-to-r from-green-600 to-emerald-500 rounded-3xl shadow-xl shadow-green-200 relative overflow-hidden">
+            {{-- Banner sambutan --}}
+            <div class="mb-8 p-8 bg-green-600 rounded-3xl shadow-lg text-white relative overflow-hidden">
                 <div class="relative z-10">
-                    <h1 class="text-3xl font-black text-white mb-2 ">Selamat Datang di Smart Quick Report</h1>
-                    <p class="text-green-50 text-lg opacity-90 font-medium">Layanan Pengaduan Online Masyarakat Kabupaten Karawang</p>
-                    <p class="text-green-50 text-lg opacity-90 font-medium">Suara Anda membangun Karawang yang lebih baik. Ada keluhan hari ini?</p>
+                    <h1 class="text-3xl font-bold mb-2">Selamat Datang di Smart Quick Report</h1>
+                    <p class="text-green-50 text-lg opacity-90">Layanan Pengaduan Online Masyarakat Kabupaten Karawang
+                    </p>
+
+                    {{-- Tombol Call to Action --}}
                     <div class="mt-6">
-                        <a href="{{ route('masyarakat.pengaduan.create') }}" class="inline-flex items-center px-6 py-3 bg-white text-green-700 font-bold rounded-xl shadow-sm hover:bg-green-50 transition ease-in-out duration-150 group">
-                            <svg class="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Buat Pengaduan Sekarang
+                        <a href="{{ route('masyarakat.pengaduan.create') }}"
+                            class="inline-flex items-center px-6 py-3 bg-white text-green-700 font-bold rounded-xl shadow hover:bg-green-50 transition duration-150">
+                            + Buat Pengaduan Sekarang
                         </a>
                     </div>
                 </div>
-                <div class="absolute right-0 bottom-0 opacity-20 transform translate-x-1/4 translate-y-1/4">
-                    <svg class="w-80 h-80 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"/></svg>
+            </div>
+
+            {{-- Card ketentuan laporan pengaduan --}}
+            <div class="mb-8 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                    <span class="w-1.5 h-6 bg-amber-500 rounded-full mr-3"></span>
+                    Ketentuan Laporan Pengaduan
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {{-- Foto --}}
+                    <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                        <div class="text-2xl mb-2">📸</div>
+                        <h4 class="font-bold text-gray-800 text-sm mb-1">Dokumentasi </h4>
+                        <p class="text-xs text-gray-500 leading-relaxed">Kirim dokumentasi aduan. Sistem akan otomatis
+                            mendeteksi lokasi koordinat melalui GPS foto Anda.</p>
+                    </div>
+
+                    {{--Deskripsi --}}
+                    <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                        <div class="text-2xl mb-2">✍️</div>
+                        <h4 class="font-bold text-gray-800 text-sm mb-1">Deskripsi Jelas</h4>
+                        <p class="text-xs text-gray-500 leading-relaxed">Jelaskan keluhan dengan bahasa yang sopan dan
+                            jelas agar mudah diproses oleh petugas.</p>
+                    </div>
+
+                    {{-- Privasi --}}
+                    <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                        <div class="text-2xl mb-2">🔒</div>
+                        <h4 class="font-bold text-gray-800 text-sm mb-1">Privasi Aman</h4>
+                        <p class="text-xs text-gray-500 leading-relaxed">Identitas Anda dijamin kerahasiaannya dan hanya
+                            digunakan untuk keperluan validasi laporan.</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center">
-                    <div class="p-4 bg-yellow-50 text-yellow-600 rounded-xl mr-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-gray-400 uppercase tracking-wider">Menunggu</p>
-                        <h3 class="text-2xl font-black text-gray-800">5 Aduan</h3>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center">
-                    <div class="p-4 bg-blue-50 text-blue-600 rounded-xl mr-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-gray-400 uppercase tracking-wider">Diproses</p>
-                        <h3 class="text-2xl font-black text-gray-800">2 Aduan</h3>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center">
-                    <div class="p-4 bg-green-50 text-green-600 rounded-xl mr-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-gray-400 uppercase tracking-wider">Selesai</p>
-                        <h3 class="text-2xl font-black text-gray-800">12 Aduan</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                <h4 class="text-xl font-black text-gray-800 mb-6 flex items-center">
+            {{-- Alur kerja SQR --}}
+            <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm overflow-hidden relative">
+                <h4 class="text-xl font-bold text-gray-800 mb-8 flex items-center">
                     <span class="w-2 h-8 bg-green-600 rounded-full mr-3"></span>
-                    Alur Pengaduan Karawang
+                    Alur Kerja SQR
                 </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-8">
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold mx-auto mb-3">1</div>
-                        <p class="text-sm font-bold text-gray-700">Tulis Laporan</p>
+
+                {{-- 4  --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                    {{-- Langkah 1 --}}
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                        <span class="text-3xl mb-2 block">📝</span>
+                        <p class="font-bold text-gray-800 text-sm">1. Input Aduan</p>
+                        <p class="text-[11px] text-gray-500 mt-1">Tulis keluhan Anda dengan lengkap melalui form yang
+                            tersedia.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold mx-auto mb-3">2</div>
-                        <p class="text-sm font-bold text-gray-700">Validasi</p>
+
+                    {{-- Langkah 2 --}}
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                        <span class="text-3xl mb-2 block">🔍</span>
+                        <p class="font-bold text-gray-800 text-sm">2. Validasi</p>
+                        <p class="text-[11px] text-gray-500 mt-1">Tim petugas memvalidasi data laporan dan validasi ke
+                            lapangan.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold mx-auto mb-3">3</div>
-                        <p class="text-sm font-bold text-gray-700">Proses Tindaklanjut</p>
+
+                    {{-- Langkah 3 --}}
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                        <span class="text-3xl mb-2 block">⚙️</span>
+                        <p class="font-bold text-gray-800 text-sm">3. Tindak Lanjut</p>
+                        <p class="text-[11px] text-gray-500 mt-1">Laporan diteruskan ke instansi terkait untuk
+                            ditindaklanjuti.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold mx-auto mb-3">4</div>
-                        <p class="text-sm font-bold text-gray-700">Feedback</p>
+
+                    {{-- Langkah 4 --}}
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                        <span class="text-3xl mb-2 block">✅</span>
+                        <p class="font-bold text-gray-800 text-sm">4. Selesai</p>
+                        <p class="text-[11px] text-gray-500 mt-1">Pengaduan selesai dan Anda memberikan feedback</p>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

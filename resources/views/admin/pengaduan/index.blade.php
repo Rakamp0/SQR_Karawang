@@ -1,110 +1,177 @@
 <x-app-layout>
-    <div class="py-12 bg-gray-50 min-h-screen">
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Kelola Pengaduan') }}
+            </h2>
+
+            {{-- Mengecek siapa yang login? --}}
+            @if(Auth::guard('instansi')->check())
+                {{-- Jika yang login instansi --}}
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded border border-blue-400">
+                    Mode Instansi: {{ Auth::guard('instansi')->user()->Nama_Instansi }}
+                </span>
+            @elseif(Auth::guard('petugas')->check())
+                {{-- Jika yang login petugas/admin --}}
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-500">
+                    Mode Admin 
+                </span>
+            @endif
+        </div>
+    </x-slot>
+
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- Header --}}
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-green-900 tracking-tight">Moderasi Pengaduan</h2>
-                    <p class="text-gray-500 mt-1">Kelola dan pantau semua laporan masuk dari masyarakat.</p>
-                </div>
-                <div class="flex gap-4">
-                    <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">
-                        <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Total</span>
-                        <p class="text-xl font-black text-green-600">{{ count($pengaduans) }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            {{-- Alert Sukses --}}
+            {{-- Sistem Notifikasi --}}
+            {{-- Muncul jika Controller mengirim pesan 'success' atau 'error' --}}
             @if(session('success'))
-                <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg shadow-sm flex items-center">
-                    <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="font-medium">{{ session('success') }}</span>
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <span class="block sm:inline">{{ session('error') }}</span>
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50/50 border-b border-gray-200">
-                                <th class="p-4 text-xs font-bold uppercase tracking-widest text-gray-500">Informasi Laporan</th>
-                                <th class="p-4 text-xs font-bold uppercase tracking-widest text-gray-500 text-center">Status Saat Ini</th>
-                                <th class="p-4 text-xs font-bold uppercase tracking-widest text-gray-500 text-center">Ubah Status</th>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 overflow-x-auto">
+                    
+                    {{-- Tabel data pengaduan --}}
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3">Tanggal</th>
+                                <th class="px-6 py-3">Pelapor</th>
+                                <th class="px-6 py-3">Judul & Isi</th>
+                                <th class="px-6 py-3">Bukti</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Instansi Tujuan</th>
+                                <th class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse($pengaduans as $item)
-                            <tr class="hover:bg-gray-50/80 transition-colors group">
-                                <td class="p-4">
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1">
-                                            {{ $item->Judul_Pengaduan }}
-                                        </span>
-                                        <span class="text-sm text-gray-500 mt-1 line-clamp-2 italic leading-relaxed">
-                                            "{{ $item->Deskripsi }}"
-                                        </span>
-                                        <div class="mt-2 flex items-center text-[10px] text-gray-400 font-medium uppercase tracking-tighter">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                            {{ \Carbon\Carbon::parse($item->Tanggal_Pengaduan)->format('d M Y') }}
-                                        </div>
-                                    </div>
+                        <tbody>
+                            {{-- Looping data menampilkan semua laporan --}}
+                            @foreach($pengaduans as $p)
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                {{-- Tanggal Diformat jadi "01 Jan 2025" --}}
+                                <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($p->Tanggal_Pengaduan)->format('d M Y') }}</td>
+                                
+                                {{-- Info Pelapor Nama & NIK --}}
+                                <td class="px-6 py-4">
+                                    <div class="font-bold">{{ $p->masyarakat->Nama_Masyarakat ?? 'Guest' }}</div>
+                                    <div class="text-xs">{{ $p->masyarakat->NIK_Masyarakat ?? '-' }}</div>
                                 </td>
-                                <td class="p-4 text-center">
-                                    @php
-                                        $status = $item->Keterangan;
-                                        $badgeStyles = [
-                                            'Ditinjau' => 'bg-blue-50 text-blue-600 border-blue-100',
-                                            'Sedang Diproses' => 'bg-yellow-50 text-yellow-600 border-yellow-100',
-                                            'Selesai' => 'bg-green-50 text-green-600 border-green-100',
-                                            'Ditolak' => 'bg-red-50 text-red-600 border-red-100',
-                                        ];
-                                        $currentStyle = $badgeStyles[$status] ?? 'bg-gray-50 text-gray-600 border-gray-100';
-                                    @endphp
 
-                                    {{-- Tanpa Bullet: Hanya teks tebal dengan background lembut --}}
-                                    <span class="inline-flex items-center px-4 py-1 rounded-full text-[10px] font-black border uppercase tracking-widest {{ $currentStyle }}">
-                                        {{ $status }}
+                                {{-- Judul & Deskripsi max 50 huruf --}}
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-gray-800">{{ $p->Judul_Pengaduan }}</div>
+                                    <div class="font-light text-gray-800">{{ $p->Kategori }}</div>
+                                    <div class="text-xs mt-1">{{ Str::limit($p->Deskripsi, 50) }}</div>
+                                </td>
+
+                                {{-- Foto Bukti --}}
+                                <td class="px-6 py-4">
+                                    @if($p->dokumentasi)
+                                        <a href="{{ url('img-proxy/'.$p->dokumentasi) }}" target="_blank" class="text-blue-600 hover:underline text-xs">Lihat Foto</a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+
+                                {{-- status warna-warni --}}
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded text-xs font-bold
+                                        {{-- Logika Warna: Hijau(Selesai), Merah(Ditolak), Biru(Diproses), Ungu(Valid), Kuning(Ditinjau) --}}
+                                        {{ $p->Keterangan == 'Selesai' ? 'bg-green-100 text-green-700' : 
+                                          ($p->Keterangan == 'Ditolak' ? 'bg-red-100 text-red-700' : 
+                                          ($p->Keterangan == 'Diproses' ? 'bg-blue-100 text-blue-700' : 
+                                          ($p->Keterangan == 'Valid' ? 'bg-indigo-100 text-indigo-700' : 'bg-yellow-100 text-yellow-700'))) }}">
+                                        {{ $p->Keterangan }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-center">
-                                    <form action="{{ route('admin.pengaduan.update', $item->Id_Pengaduan) }}" method="POST" class="inline-block">
-                                        @csrf 
+
+                                {{-- Instansi tujuan jika sudah dipilih admin/petugas --}}
+                                <td class="px-6 py-4 text-xs">
+                                    {{ $p->instansi->Nama_Instansi ?? '-' }}
+                                </td>
+
+                                {{-- Kolom aksi (Logika Utama) --}}
+                                <td class="px-6 py-4">
+                                    <form action="{{ route('admin.pengaduan.update', $p->Id_Pengaduan) }}" method="POST" class="flex flex-col gap-2">
+                                        @csrf
                                         @method('PATCH')
-                                        <div class="relative">
-                                            <select name="status" onchange="this.form.submit()" 
-                                                class="appearance-none pr-8 pl-3 py-1.5 text-xs font-bold rounded-lg border-gray-200 bg-gray-50 text-gray-700 cursor-pointer focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
-                                                <option value="Ditinjau" {{ $item->Keterangan == 'Ditinjau' ? 'selected' : '' }}>Set Ditinjau</option>
-                                                <option value="Sedang Diproses" {{ $item->Keterangan == 'Sedang Diproses' ? 'selected' : '' }}>Set Proses</option>
-                                                <option value="Selesai" {{ $item->Keterangan == 'Selesai' ? 'selected' : '' }}>Set Selesai</option>
-                                                <option value="Ditolak" {{ $item->Keterangan == 'Ditolak' ? 'selected' : '' }}>Set Tolak</option>
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                                            </div>
-                                        </div>
+
+                                        {{-- Bagian admin/petugas --}}
+                                        @if(Auth::guard('petugas')->check())
+                                            
+                                            {{-- Status aduan 'Ditinjau' --}}
+                                            @if($p->Keterangan == 'Ditinjau')
+                                                
+                                                {{-- Memilih dinas terkait --}}
+                                                <select name="id_instansi" class="text-xs border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 w-full mb-1" required>
+                                                    <option value="">-- Pilih Dinas --</option>
+                                                    @foreach($listInstansi as $dinas)
+                                                        <option value="{{ $dinas->Id_Instansi }}">{{ $dinas->Nama_Instansi }}</option>
+                                                    @endforeach
+                                                </select>
+                                                
+                                                {{-- Tombol validasi Kirim ke instansi atau Tolak --}}
+                                                <div class="flex gap-1">
+                                                    <button type="submit" name="status" value="Valid" class="flex-1 text-white bg-green-600 hover:bg-green-700 font-medium rounded text-xs px-2 py-1">
+                                                        Validasi
+                                                    </button>
+                                                    <button type="submit" name="status" value="Ditolak" class="flex-1 text-white bg-red-600 hover:bg-red-700 font-medium rounded text-xs px-2 py-1">
+                                                        Tolak
+                                                    </button>
+                                                </div>
+                                            @else
+                                                {{-- Status Menunggu Instansi --}}
+                                                <span class="text-xs text-center text-gray-400 block italic">Menunggu Instansi</span>
+                                            @endif
+                                        @endif
+
+                                        {{-- Zona instansi --}}
+                                        @if(Auth::guard('instansi')->check())
+                                            
+                                            {{-- Tombol Diproses aduan yang valid --}}
+                                            @if($p->Keterangan == 'Valid')
+                                                <button type="submit" name="status" value="Diproses" class="w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-xs px-3 py-1">
+                                                    Proses Laporan
+                                                </button>
+                                            
+                                            {{-- Tombol Selesaikan setelah status Dikerjakan --}}
+                                            @elseif($p->Keterangan == 'Diproses')
+                                                <button type="submit" name="status" value="Selesai" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded text-xs px-3 py-1">
+                                                    Selesaikan
+                                                </button>
+                                            
+                                            {{-- Teks Selesai --}}
+                                            @else
+                                                <span class="text-xs text-center text-gray-400 block italic">Selesai</span>
+                                            @endif
+                                        @endif
+
                                     </form>
                                 </td>
                             </tr>
-                            @empty
+                            @endforeach
+                            
+                            {{-- Jika belum ada data sama sekali --}}
+                            @if($pengaduans->isEmpty())
                             <tr>
-                                <td colspan="3" class="p-12 text-center text-gray-500">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                        <p class="font-medium">Belum ada data pengaduan.</p>
-                                    </div>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 italic">
+                                    Belum ada pengaduan yang masuk.
                                 </td>
                             </tr>
-                            @endforelse
+                            @endif
                         </tbody>
                     </table>
+
                 </div>
             </div>
-            
-            <p class="mt-6 text-center text-gray-400 text-xs">Sistem Pengaduan v1.0 • Smart Quick Report</p>
         </div>
     </div>
 </x-app-layout>

@@ -11,54 +11,76 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    // Tampil halaman login
     public function create(): View
     {
         return view('auth.login');
     }
 
+    // Proses Login
     public function store(LoginRequest $request): RedirectResponse
     {
-        $login = $request->Email_Masyarakat;
-        $password = $request->Password_Msy;
-        $role = $request->role;
+        // Mengeluarkan sesi yang tersangkut
+        Auth::guard('web')->logout();
+        Auth::guard('petugas')->logout();
+        Auth::guard('instansi')->logout();
 
-        // 1. Logika Login Admin (Guard Petugas)
-        if ($role === 'admin') {
-            $credentials = [
-                'Email_Petugas' => $login, 
-                'password' => $password // Tetap gunakan key 'password'
-            ];
+        // Cek login sesuai role yang dipilih
+        // Pilih admin/petugas
+        if ($request->role === 'admin') {
+            // Cek tabel petugas 
+            $cek_login = Auth::guard('petugas')->attempt([
+                'Email_Petugas' => $request->Email_Masyarakat, 
+                'password' => $request->Password_Msy, 
+            ]);
 
-            if (Auth::guard('petugas')->attempt($credentials)) {
+            if ($cek_login) {
                 $request->session()->regenerate();
-                // Menggunakan route name lebih aman daripada path manual
                 return redirect()->intended(route('admin.dashboard'));
             }
-        } 
-        // 2. Logika Login Masyarakat (Guard Web)
-        else {
-            $credentials = [
-                'Email_Masyarakat' => $login, 
-                'password' => $password
-            ];
+        }
 
-            if (Auth::guard('web')->attempt($credentials)) {
+        // Pilih instansi
+        elseif ($request->role === 'instansi') {
+            // Cek tabel instansi
+            $cek_login = Auth::guard('instansi')->attempt([
+                'Email_Instansi' => $request->Email_Masyarakat,
+                'password' => $request->Password_Msy,
+            ]);
+
+            if ($cek_login) {
+                $request->session()->regenerate();
+                return redirect()->intended(route('admin.dashboard'));
+            }
+        }
+
+        // Pilih sebagai masyarakat
+        else {
+            // Cek tabel masyarakat
+            $cek_login = Auth::guard('web')->attempt([
+                'Email_Masyarakat' => $request->Email_Masyarakat,
+                'password' => $request->Password_Msy,
+            ]);
+
+            if ($cek_login) {
                 $request->session()->regenerate();
                 return redirect()->intended(route('dashboard'));
             }
         }
 
-        // 3. Jika gagal (Email/Password tidak cocok di kedua guard)
+        // Jika email/password salah
         return back()->withErrors([
-            'Email_Masyarakat' => 'Email atau Password salah untuk akses ' . ($role ?? 'pengguna'),
+            'Email_Masyarakat' => 'Login gagal, periksa email atau password.',
         ])->withInput($request->only('Email_Masyarakat', 'role'));
     }
 
+    // Proses Logout
     public function destroy(Request $request): RedirectResponse
     {
-        // Logout dari semua kemungkinan guard yang aktif
-        Auth::guard('petugas')->logout();
+        // Logout semuanya biar aman
         Auth::guard('web')->logout();
+        Auth::guard('petugas')->logout();
+        Auth::guard('instansi')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

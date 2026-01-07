@@ -9,31 +9,34 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleCheck
 {
+    // Menangani permintaan masuk
     public function handle(Request $request, Closure $next, $role): Response
     {
-        // 1. Periksa akses Admin menggunakan guard petugas
+        // Cek akses admin/petugas dan instansi
+        // admin/petugas menggunakan dashboard yang sama
         if ($role === 'admin') {
-            if (Auth::guard('petugas')->check()) {
+            if (Auth::guard('petugas')->check() || Auth::guard('instansi')->check()) {
                 return $next($request);
             }
         }
 
-        // 2. Periksa akses Masyarakat menggunakan guard web (masyarakat)
+        // Cek akses masyarakat
         if ($role === 'masyarakat') {
             if (Auth::guard('web')->check()) {
-                return $next($request);
+                return $next($request); 
             }
         }
 
-        // 3. JIKA GAGAL: Bedakan antara "Belum Login" dan "Salah Role"
-        
-        // Jika belum login sama sekali, baru lempar ke login
-        if (!Auth::guard('petugas')->check() && !Auth::guard('web')->check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        // Jika belum login sama sekali
+        if (
+            !Auth::guard('petugas')->check() &&
+            !Auth::guard('instansi')->check() &&
+            !Auth::guard('web')->check()
+        ) {
+            return redirect()->route('login')->with('error', 'Eits, login dulu ya!');
         }
 
-        // Jika sudah login tapi mencoba akses yang bukan haknya (misal: Masyarakat mau buka menu Admin)
-        // Jangan lempar ke login (biar tidak looping), tapi lempar ke dashboard masing-masing atau abort 403
-        return abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        // Sudah login tapi coba buka halaman instansi
+        return abort(403, 'Maaf, Anda tidak punya akses ke halaman ini.');
     }
 }
